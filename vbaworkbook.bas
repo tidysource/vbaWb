@@ -1,15 +1,22 @@
 Attribute VB_Name = "workbook_"
 Option Explicit
 
-'ADD checks to make sure that total cell reference will not be beyond excel limits (row>1048576 and column>16384)
+'To consider
+'===========
+'Add checks to make sure that total cell reference
+'will not be beyond excel limits
+'(row>1048576 and column>16384)
 
+'Helper functions
+'================
 'Get length of an array
+'----------------------
 Private Function arrLenght(arr As Variant) As Long
     arrLenght = UBound(arr) - LBound(arr) + 1
 End Function
 
 'Limits of excel
-'===============
+'---------------
 'https://support.office.com/en-us/article/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3#ID0EBABAAA=2016,_2013
 Private Function excelMaxRow() As Long
     excelMaxRow = 1048576
@@ -19,7 +26,7 @@ Private Function excelMaxColumn() As Integer
 End Function
 
 'Localisation
-'============
+'------------
 Private Function UItext(keyStr As String) As String
     'TO-THINK: could add an optional paramarray to pass extra info for text
     Dim result As New Collection
@@ -374,7 +381,7 @@ End Function
             endColumn = lastColumn(row, sheetName, wbName)
         End If
 
-        'Get column
+        'Get row
         Dim result As Variant
         ReDim result(1 To endColumn - startColumn + 1) As Variant
 
@@ -396,6 +403,86 @@ End Function
                     Optional endColumn As Integer = -1 _
                     ) As Variant
         getRowFormula = getRow(row, sheetName, wbName, startColumn, endColumn, True)
+    End Function
+    
+    'Get a column of values
+    '----------------------
+    Function getColumn( _
+                    column As Integer, _
+                    Optional sheetName As String = "", _
+                    Optional wbName As String = "", _
+                    Optional startRow As Long = 1, _
+                    Optional endRow As Long = -1, _
+                    Optional getFormula As Boolean = False _
+                    ) As Variant
+        'Set default values
+        If sheetName = "" Then
+            sheetName = Application.ActiveWorkbook.ActiveSheet.Name
+            wbName = Application.ActiveWorkbook.Name
+        ElseIf wbName = "" Then
+            wbName = Application.ActiveWorkbook.Name
+        End If
+        If endRow = -1 Then
+            endRow = lastRow(column, sheetName, wbName)
+        End If
+
+        'Get column
+        Dim result As Variant
+        ReDim result(1 To endRow - startRow + 1) As Variant
+        
+        Dim i As Integer
+        For i = 1 To UBound(result)
+            result(i) = getCell(i - 1 + startRow, column, sheetName, wbName, getFormula)
+        Next i
+
+        getColumn = result
+    End Function
+    
+    
+    'Get a column of formulas
+    '------------------------
+    Function getColumnFormula( _
+                column As Integer, _
+                Optional sheetName As String = "", _
+                Optional wbName As String = "", _
+                Optional startRow As Long = 1, _
+                Optional endRow As Long = -1 _
+                ) As Variant
+        getColumnFormula = getColumn(column, sheetName, wbName, startRow, endRow, True)
+    End Function
+    
+    'Set a column of values
+    '----------------------
+    Function setColumn( _
+                    valueArray As Variant, _
+                    column As Integer, _
+                    Optional sheetName As String = "", _
+                    Optional wbName As String = "", _
+                    Optional startRow As Long = 1 _
+                    ) As Boolean
+        'Set default values
+        If sheetName = "" Then
+            sheetName = Application.ActiveWorkbook.ActiveSheet.Name
+            wbName = Application.ActiveWorkbook.Name
+        ElseIf wbName = "" Then
+            wbName = Application.ActiveWorkbook.Name
+        End If
+        
+        Dim i As Integer
+        Dim j As Integer 'to not depend on valueArray bounds
+        j = 0
+        For i = LBound(valueArray) To UBound(valueArray)
+            setCell _
+                valueArray(i), _
+                startRow + j, _
+                column, _
+                sheetName, _
+                wbName
+            j = j + 1
+        Next i
+
+        'setRow success
+        setColumn = True
     End Function
 
     'Returns last row
@@ -562,6 +649,7 @@ End Function
         j = 0
         For i = LBound(valueMatrix) To UBound(valueMatrix)
             setRow valueMatrix(i), startRow + j, sheetName, wbName, startColumn
+            j = j + 1
         Next i
         
         'setMatrix success
