@@ -1,1 +1,3 @@
 # vbaWb
+
+Excel workbook utilities.
