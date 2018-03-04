@@ -28,7 +28,7 @@ End Function
 'Localisation
 '------------
 Private Function UItext(keyStr As String) As String
-    'TO-THINK: could add an optional paramarray to pass extra info for text
+    'TO-THINK: could add an optional byval paramarray to pass extra info for text
     Dim result As New Collection
     result.Add _
                 Key:="newWorksheet", _
@@ -46,10 +46,10 @@ End Function
     Function newWorkbook()
         Dim wb As Workbook
         Set wb = Workbooks.Add
-        
+
         'Display the new workbook on top
         AppActivate wb.Name
-        
+
         'Return workbook name
         newWorkbook = wb.Name
     End Function
@@ -59,21 +59,21 @@ End Function
     'New worksheet
     '-------------
     Function newWorksheet( _
-                            Optional sheetName As String = "", _
-                            Optional wbName As String = "", _
-                            Optional promptForName As Boolean = False _
+                            Optional ByVal sheetName As String = "", _
+                            Optional ByVal wbName As String = "", _
+                            Optional ByVal promptForName As Boolean = False _
                             ) As String
         If promptForName = True Then
             sheetName = alertInput(UItext("newWorksheet"))
         End If
-        
+
         If wbName = "" Then
             wbName = Application.ActiveWorkbook.Name
         End If
-        
+
         Dim ws As Worksheet
         Set ws = Application.Workbooks(wbName).Worksheets.Add()
-             
+
         If sheetName = "" Then
             'Return worksheet name
             newWorksheet = ws.Name
@@ -89,8 +89,8 @@ End Function
     Function renameWorksheet( _
                                 oldName As String, _
                                 newName As String, _
-                                Optional wbName As String = "", _
-                                Optional promptForName As Boolean = False _
+                                Optional ByVal wbName As String = "", _
+                                Optional ByVal promptForName As Boolean = False _
                                 ) As String
         If promptForName = True Then
             newName = alertInput(UItext("renameWorksheet"))
@@ -98,28 +98,28 @@ End Function
         If wbName = "" Then
             wbName = Application.ActiveWorkbook.Name
         End If
-        
+
         Application.Workbooks(wbName).Worksheets(oldName).Name = newName
-        
+
         'Return new name
         renameWorksheet = newName
     End Function
-    
+
     'Delete worksheet
     '----------------
     Function rmWorksheet( _
                             sheetName As String, _
-                            Optional wbName As String = "", _
-                            Optional promptBeforeRemoving As Boolean = False _
+                            Optional ByVal wbName As String = "", _
+                            Optional ByVal promptBeforeRemoving As Boolean = False _
                             ) As Boolean
         If wbName = "" Then
             wbName = Application.ActiveWorkbook.Name
         End If
-        
+
         If promptBeforeRemoving = False Then
             Application.DisplayAlerts = False
         End If
-            
+
         'Silently fail if already deleted
         With Application.Workbooks(wbName)
             Dim exists As Boolean
@@ -135,15 +135,15 @@ End Function
                 .Worksheets(sheetName).Delete
             End If
         End With
-        
+
         If promptBeforeRemoving = False Then
             Application.DisplayAlerts = True
         End If
-        
+
         'RmWorksheet was successful
         rmWorksheet = True
     End Function
-    
+
 'Cell functions
 '==============
     'Get cell (value)
@@ -151,9 +151,9 @@ End Function
     Function getCell( _
                     row As Long, _
                     column As Integer, _
-                    Optional sheetName As String = "", _
-                    Optional wbName As String = "", _
-                    Optional getFormula As Boolean = False _
+                    Optional ByVal sheetName As String = "", _
+                    Optional ByVal wbName As String = "", _
+                    Optional ByVal getFormula As Boolean = False _
                     ) As Variant
         'Set default values
         If sheetName = "" Then
@@ -162,7 +162,7 @@ End Function
         ElseIf wbName = "" Then
             wbName = Application.ActiveWorkbook.Name
         End If
-        
+
         With Application.Workbooks(wbName).Worksheets(sheetName).Cells(row, column)
             If getFormula = True Then
                 getCell = .Formula
@@ -171,25 +171,25 @@ End Function
             End If
         End With
     End Function
-    
+
     'Get cell formula
     '----------------
     Function getCellFormula( _
                     row As Long, _
                     column As Integer, _
-                    Optional sheetName As String = "", _
-                    Optional wbName As String = "" _
+                    Optional ByVal sheetName As String = "", _
+                    Optional ByVal wbName As String = "" _
                     ) As String
         getCellFormula = getCell(row, column, sheetName, wbName, True)
     End Function
-    
+
     'Set cell value
     '--------------
     Function setCell(val As Variant, _
                     row As Long, _
                     column As Integer, _
-                    Optional sheetName As String = "", _
-                    Optional wbName As String = "" _
+                    Optional ByVal sheetName As String = "", _
+                    Optional ByVal wbName As String = "" _
                     ) As Boolean
         'Set default values
         If sheetName = "" Then
@@ -198,22 +198,22 @@ End Function
         ElseIf wbName = "" Then
             wbName = Application.ActiveWorkbook.Name
         End If
-        
+
         Application.Workbooks(wbName).Worksheets(sheetName).Cells(row, column).Value = val
-        
+
         'Set was successful
         setCell = True
     End Function
-    
+
     'Insert a single or a range of cells
     '-----------------------------------
     Function insertCell( _
                     startRow As Long, _
                     startColumn As Integer, _
-                    Optional endRow As Long = -1, _
-                    Optional endColumn As Integer = -1, _
-                    Optional sheetName As String = "", _
-                    Optional wbName As String = "" _
+                    Optional ByVal endRow As Long = -1, _
+                    Optional ByVal endColumn As Integer = -1, _
+                    Optional ByVal sheetName As String = "", _
+                    Optional ByVal wbName As String = "" _
                     ) As Boolean
         'Set default values
         If endRow = -1 Then
@@ -228,7 +228,7 @@ End Function
         ElseIf wbName = "" Then
             wbName = Application.ActiveWorkbook.Name
         End If
-        
+
         'Insert cell
         Application _
             .Workbooks(wbName) _
@@ -237,7 +237,7 @@ End Function
                     Cells(startRow, startColumn), _
                     Cells(endRow, endColumn) _
                     ).Insert Shift:=xlDown, CopyOrigin:=xlFormatFromLeftOrAbove
-                    
+
         'insertCell success
         insertCell = True
     End Function
@@ -247,10 +247,10 @@ End Function
     Function rmCell( _
                     startRow As Long, _
                     startColumn As Integer, _
-                    Optional endRow As Long = -1, _
-                    Optional endColumn As Integer = -1, _
-                    Optional sheetName As String = "", _
-                    Optional wbName As String = "" _
+                    Optional ByVal endRow As Long = -1, _
+                    Optional ByVal endColumn As Integer = -1, _
+                    Optional ByVal sheetName As String = "", _
+                    Optional ByVal wbName As String = "" _
                     ) As Boolean
         'Set default values
         If endRow = -1 Then
@@ -265,7 +265,7 @@ End Function
         ElseIf wbName = "" Then
             wbName = Application.ActiveWorkbook.Name
         End If
-        
+
         'Remove cell
         Application _
             .Workbooks(wbName) _
@@ -274,21 +274,21 @@ End Function
                     Cells(startRow, startColumn), _
                     Cells(endRow, endColumn) _
                     ).Delete Shift:=xlUp
-                    
+
         'rmCell success
         rmCell = True
     End Function
 
-    
+
     'Clear cell value and styling
     '----------------------------
     Function clearCell( _
                     startRow As Long, _
                     startColumn As Integer, _
-                    Optional endRow As Long = -1, _
-                    Optional endColumn As Integer = -1, _
-                    Optional sheetName As String = "", _
-                    Optional wbName As String = "" _
+                    Optional ByVal endRow As Long = -1, _
+                    Optional ByVal endColumn As Integer = -1, _
+                    Optional ByVal sheetName As String = "", _
+                    Optional ByVal wbName As String = "" _
                     ) As Boolean
         'Set default values
         If endRow = -1 Then
@@ -303,7 +303,7 @@ End Function
         ElseIf wbName = "" Then
             wbName = Application.ActiveWorkbook.Name
         End If
-        
+
         'Clear cell
         Application.ScreenUpdating = False
         With Application _
@@ -319,11 +319,11 @@ End Function
             .ClearFormats
         End With
         Application.ScreenUpdating = True
-        
+
         'rmCell was successful
         clearCell = True
     End Function
-    
+
 'Row and column functions
 '========================
     'Sets a row of values
@@ -331,9 +331,9 @@ End Function
     Function setRow( _
                     valueArray As Variant, _
                     row As Long, _
-                    Optional sheetName As String = "", _
-                    Optional wbName As String = "", _
-                    Optional startColumn As Integer = 1 _
+                    Optional ByVal sheetName As String = "", _
+                    Optional ByVal wbName As String = "", _
+                    Optional ByVal startColumn As Integer = 1 _
                     ) As Boolean
         'Set default values
         If sheetName = "" Then
@@ -342,7 +342,7 @@ End Function
         ElseIf wbName = "" Then
             wbName = Application.ActiveWorkbook.Name
         End If
-        
+
         Dim i As Integer
         Dim j As Integer 'to not depend on valueArray bounds
         j = 0
@@ -359,16 +359,16 @@ End Function
         'setRow success
         setRow = True
     End Function
-    
+
     'Get a row of values
     '-------------------
     Function getRow( _
                     row As Long, _
-                    Optional sheetName As String = "", _
-                    Optional wbName As String = "", _
-                    Optional startColumn As Integer = 1, _
-                    Optional endColumn As Integer = -1, _
-                    Optional getFormula As Boolean = False _
+                    Optional ByVal sheetName As String = "", _
+                    Optional ByVal wbName As String = "", _
+                    Optional ByVal startColumn As Integer = 1, _
+                    Optional ByVal endColumn As Integer = -1, _
+                    Optional ByVal getFormula As Boolean = False _
                     ) As Variant
         'Set default values
         If sheetName = "" Then
@@ -397,23 +397,23 @@ End Function
     '---------------------
     Function getRowFormula( _
                     row As Long, _
-                    Optional sheetName As String = "", _
-                    Optional wbName As String = "", _
-                    Optional startColumn As Integer = 1, _
-                    Optional endColumn As Integer = -1 _
+                    Optional ByVal sheetName As String = "", _
+                    Optional ByVal wbName As String = "", _
+                    Optional ByVal startColumn As Integer = 1, _
+                    Optional ByVal endColumn As Integer = -1 _
                     ) As Variant
         getRowFormula = getRow(row, sheetName, wbName, startColumn, endColumn, True)
     End Function
-    
+
     'Get a column of values
     '----------------------
     Function getColumn( _
                     column As Integer, _
-                    Optional sheetName As String = "", _
-                    Optional wbName As String = "", _
-                    Optional startRow As Long = 1, _
-                    Optional endRow As Long = -1, _
-                    Optional getFormula As Boolean = False _
+                    Optional ByVal sheetName As String = "", _
+                    Optional ByVal wbName As String = "", _
+                    Optional ByVal startRow As Long = 1, _
+                    Optional ByVal endRow As Long = -1, _
+                    Optional ByVal getFormula As Boolean = False _
                     ) As Variant
         'Set default values
         If sheetName = "" Then
@@ -429,7 +429,7 @@ End Function
         'Get column
         Dim result As Variant
         ReDim result(1 To endRow - startRow + 1) As Variant
-        
+
         Dim i As Integer
         For i = 1 To UBound(result)
             result(i) = getCell(i - 1 + startRow, column, sheetName, wbName, getFormula)
@@ -437,28 +437,28 @@ End Function
 
         getColumn = result
     End Function
-    
-    
+
+
     'Get a column of formulas
     '------------------------
     Function getColumnFormula( _
                 column As Integer, _
-                Optional sheetName As String = "", _
-                Optional wbName As String = "", _
-                Optional startRow As Long = 1, _
-                Optional endRow As Long = -1 _
+                Optional ByVal sheetName As String = "", _
+                Optional ByVal wbName As String = "", _
+                Optional ByVal startRow As Long = 1, _
+                Optional ByVal endRow As Long = -1 _
                 ) As Variant
         getColumnFormula = getColumn(column, sheetName, wbName, startRow, endRow, True)
     End Function
-    
+
     'Set a column of values
     '----------------------
     Function setColumn( _
                     valueArray As Variant, _
                     column As Integer, _
-                    Optional sheetName As String = "", _
-                    Optional wbName As String = "", _
-                    Optional startRow As Long = 1 _
+                    Optional ByVal sheetName As String = "", _
+                    Optional ByVal wbName As String = "", _
+                    Optional ByVal startRow As Long = 1 _
                     ) As Boolean
         'Set default values
         If sheetName = "" Then
@@ -467,7 +467,7 @@ End Function
         ElseIf wbName = "" Then
             wbName = Application.ActiveWorkbook.Name
         End If
-        
+
         Dim i As Integer
         Dim j As Integer 'to not depend on valueArray bounds
         j = 0
@@ -490,8 +490,8 @@ End Function
     'Minimum return value = 1
     Function lastRow( _
                     column As Integer, _
-                    Optional sheetName As String = "", _
-                    Optional wbName As String = "" _
+                    Optional ByVal sheetName As String = "", _
+                    Optional ByVal wbName As String = "" _
                     ) As Long
         'Set default values
         If sheetName = "" Then
@@ -500,19 +500,19 @@ End Function
         ElseIf wbName = "" Then
             wbName = Application.ActiveWorkbook.Name
         End If
-      
+
         With Application.Workbooks(wbName).Worksheets(sheetName)
             lastRow = .Cells(.Rows.Count, column).End(xlUp).row
         End With
     End Function
-    
+
     'Returns last column
     '-------------------
     'Minimum return value = 1
     Function lastColumn( _
                         row As Long, _
-                        Optional sheetName As String = "", _
-                        Optional wbName As String = "" _
+                        Optional ByVal sheetName As String = "", _
+                        Optional ByVal wbName As String = "" _
                         ) As Integer
         'Set default values
         If sheetName = "" Then
@@ -521,18 +521,18 @@ End Function
         ElseIf wbName = "" Then
             wbName = Application.ActiveWorkbook.Name
         End If
-        
+
         With Application.Workbooks(wbName).Worksheets(sheetName)
-            lastColumn = .Cells(row, .Columns.Count).End(xlToLeft).column
+            lastColumn = .Cells(row, .columns.Count).End(xlToLeft).column
         End With
     End Function
-    
+
     'Inserts entire row
     '------------------
     Function insertRow( _
                         insertBeforeRow As Long, _
-                        Optional sheetName As String = "", _
-                        Optional wbName As String = "" _
+                        Optional ByVal sheetName As String = "", _
+                        Optional ByVal wbName As String = "" _
                         ) As Boolean
         'Set default values
         If sheetName = "" Then
@@ -541,7 +541,7 @@ End Function
         ElseIf wbName = "" Then
             wbName = Application.ActiveWorkbook.Name
         End If
-        
+
         'Insert row
         Application _
             .Workbooks(wbName) _
@@ -549,17 +549,17 @@ End Function
             .Cells(insertBeforeRow, 1) _
             .EntireRow.Insert , _
                 CopyOrigin:=xlFormatFromLeftOrAbove
-            
+
         'insertRow success
         insertRow = True
     End Function
-    
+
     'Inserts entire column
     '---------------------
     Function insertColumn( _
                         insertBeforeColumn As Integer, _
-                        Optional sheetName As String = "", _
-                        Optional wbName As String = "" _
+                        Optional ByVal sheetName As String = "", _
+                        Optional ByVal wbName As String = "" _
                         ) As Boolean
         'Set default values
         If sheetName = "" Then
@@ -568,7 +568,7 @@ End Function
         ElseIf wbName = "" Then
             wbName = Application.ActiveWorkbook.Name
         End If
-        
+
         'Insert row
         Application _
             .Workbooks(wbName) _
@@ -576,7 +576,7 @@ End Function
             .Cells(1, insertBeforeColumn) _
             .EntireColumn.Insert , _
                 CopyOrigin:=xlFormatFromLeftOrAbove
-            
+
         'insertColumn success
         insertColumn = True
     End Function
@@ -585,8 +585,8 @@ End Function
     '-----------------
     Function rmRow( _
                     row As Long, _
-                    Optional sheetName As String = "", _
-                    Optional wbName As String = "" _
+                    Optional ByVal sheetName As String = "", _
+                    Optional ByVal wbName As String = "" _
                     ) As Boolean
             'Set default values
             If sheetName = "" Then
@@ -595,24 +595,24 @@ End Function
             ElseIf wbName = "" Then
                 wbName = Application.ActiveWorkbook.Name
             End If
-            
+
             'Remove row
             Application _
                 .Workbooks(wbName) _
                 .Worksheets(sheetName) _
                 .Cells(row, 1) _
                 .EntireRow.Delete
-            
+
             'rmRow success
             rmRow = True
     End Function
-    
+
     'Remove entire column
     '--------------------
     Function rmColumn( _
                     column As Integer, _
-                    Optional sheetName As String = "", _
-                    Optional wbName As String = "" _
+                    Optional ByVal sheetName As String = "", _
+                    Optional ByVal wbName As String = "" _
                     ) As Boolean
             'Set default values
             If sheetName = "" Then
@@ -621,14 +621,14 @@ End Function
             ElseIf wbName = "" Then
                 wbName = Application.ActiveWorkbook.Name
             End If
-            
+
             'Remove column
             Application _
                 .Workbooks(wbName) _
                 .Worksheets(sheetName) _
                 .Cells(1, column) _
                 .EntireColumn.Delete
-            
+
             'rmColumn success
             rmColumn = True
     End Function
@@ -639,10 +639,10 @@ End Function
     '--------------------
     Function setMatrix( _
                         valueMatrix As Variant, _
-                        Optional startRow As Long = 1, _
-                        Optional startColumn As Integer = 1, _
-                        Optional sheetName As String = "", _
-                        Optional wbName As String = "" _
+                        Optional ByVal startRow As Long = 1, _
+                        Optional ByVal startColumn As Integer = 1, _
+                        Optional ByVal sheetName As String = "", _
+                        Optional ByVal wbName As String = "" _
                         ) As Boolean
         Dim i As Integer
         Dim j As Long 'to avoid
@@ -651,29 +651,29 @@ End Function
             setRow valueMatrix(i), startRow + j, sheetName, wbName, startColumn
             j = j + 1
         Next i
-        
+
         'setMatrix success
         setMatrix = True
     End Function
-    
+
     'Get the last row in a matrix
     '----------------------------
     'For performance reasons endColumn
     'is recommended (defaults to excel limit)
     Function lastRowMatrix( _
                             startColumn As Integer, _
-                            Optional endColumn As Integer = -1, _
-                            Optional sheetName As String = "", _
-                            Optional wbName As String = "" _
+                            Optional ByVal endColumn As Integer = -1, _
+                            Optional ByVal sheetName As String = "", _
+                            Optional ByVal wbName As String = "" _
                             ) As Variant
         If endColumn = -1 Then
             endColumn = excelMaxColumn()
         End If
-        
+
         Dim row As Long
         Dim maxRow As Long
         maxRow = 1
-        
+
         Dim i As Integer
         For i = startColumn To endColumn
             row = lastRow(i, sheetName, wbName)
@@ -681,28 +681,28 @@ End Function
                 maxRow = row
             End If
         Next i
-        
+
         lastRowMatrix = maxRow
     End Function
-    
+
     'Get the last column in a matrix
     '-------------------------------
     'For performance reasons endRow
     'is recommended (defaults to excel limit)
     Function lastColumnMatrix( _
                             startRow As Long, _
-                            Optional endRow As Long = -1, _
-                            Optional sheetName As String = "", _
-                            Optional wbName As String = "" _
+                            Optional ByVal endRow As Long = -1, _
+                            Optional ByVal sheetName As String = "", _
+                            Optional ByVal wbName As String = "" _
                             ) As Variant
         If endRow = -1 Then
             endRow = excelMaxRow()
         End If
-        
+
         Dim column As Integer
         Dim maxColumn As Integer
         maxColumn = 1
-        
+
         Dim i As Long
         For i = startRow To endRow
             column = lastColumn(i, sheetName, wbName)
@@ -710,34 +710,34 @@ End Function
                 maxColumn = column
             End If
         Next i
-        
+
         lastColumnMatrix = maxColumn
     End Function
-    
+
     'Return matrix (2d array) of values
     '----------------------------------
     Function getMatrix( _
                         startRow As Long, _
                         startColumn As Integer, _
-                        Optional endRow As Long = -1, _
-                        Optional endColumn As Integer = -1, _
-                        Optional sheetName As String = "", _
-                        Optional wbName As String = "", _
-                        Optional getFormula As Boolean = False _
+                        Optional ByVal endRow As Long = -1, _
+                        Optional ByVal endColumn As Integer = -1, _
+                        Optional ByVal sheetName As String = "", _
+                        Optional ByVal wbName As String = "", _
+                        Optional ByVal getFormula As Boolean = False _
                         ) As Variant
         'Default last row
         If endRow = -1 Then
             endRow = lastRowMatrix(startColumn, endColumn, sheetName, wbName)
         End If
-        
+
         Dim result As Variant
         ReDim result(1 To endRow - startRow + 1) As Variant
-        
+
         Dim i As Long
         For i = 1 To UBound(result)
             result(i) = getRow(startRow + i - 1, sheetName, wbName, startColumn, endColumn, getFormula)
         Next i
-        
+
         'return 2d array of rows
         getMatrix = result
     End Function
