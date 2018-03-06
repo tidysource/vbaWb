@@ -323,6 +323,78 @@ End Function
         'rmCell was successful
         clearCell = True
     End Function
+    
+    'Comment a cell
+    '--------------
+    Function commentCell(comment As String, _
+                        row As Long, _
+                        column As Integer, _
+                        Optional ByVal sheetName As String = "", _
+                        Optional ByVal wbName As String = "" _
+                        ) As Boolean
+        'Set default values
+        If sheetName = "" Then
+            sheetName = Application.ActiveWorkbook.ActiveSheet.Name
+            wbName = Application.ActiveWorkbook.Name
+        ElseIf wbName = "" Then
+            wbName = Application.ActiveWorkbook.Name
+        End If
+        
+        'Remove existing comment (otherwise Excel will throw an error)
+        Application.Workbooks(wbName).Worksheets(sheetName).Cells(row, column).comment.Delete
+        
+        'Add new comment
+        Application.Workbooks(wbName).Worksheets(sheetName).Cells(row, column).AddComment (comment)
+    
+        'Comment was successful
+        commentCell = True
+    End Function
+    
+    'Remove cell background fill
+    '---------------------------
+    Function rmBgCell(row As Long, _
+                    column As Integer, _
+                    Optional ByVal sheetName As String = "", _
+                    Optional ByVal wbName As String = "" _
+                    ) As Boolean
+        'Set default values
+        If sheetName = "" Then
+            sheetName = Application.ActiveWorkbook.ActiveSheet.Name
+            wbName = Application.ActiveWorkbook.Name
+        ElseIf wbName = "" Then
+            wbName = Application.ActiveWorkbook.Name
+        End If
+        
+        'Add new comment
+        Application.Workbooks(wbName).Worksheets(sheetName).Cells(row, column).Interior.color = xlNone
+    
+        'Comment was successful
+        commentCell = True
+    End Function
+    
+    'Change cell background fill
+    '---------------------------
+    'Use RGB(255, 0, 0) to define a color value
+    Function bgCell(color As String, _
+                    row As Long, _
+                    column As Integer, _
+                    Optional ByVal sheetName As String = "", _
+                    Optional ByVal wbName As String = "" _
+                    ) As Boolean
+        'Set default values
+        If sheetName = "" Then
+            sheetName = Application.ActiveWorkbook.ActiveSheet.Name
+            wbName = Application.ActiveWorkbook.Name
+        ElseIf wbName = "" Then
+            wbName = Application.ActiveWorkbook.Name
+        End If
+        
+        'Add new comment
+        Application.Workbooks(wbName).Worksheets(sheetName).Cells(row, column).Interior.color = color
+    
+        'Comment was successful
+        commentCell = True
+    End Function
 
 'Row and column functions
 '========================
@@ -381,16 +453,21 @@ End Function
             endColumn = lastColumn(row, sheetName, wbName)
         End If
 
-        'Get row
-        Dim result As Variant
-        ReDim result(1 To endColumn - startColumn + 1) As Variant
-
-        Dim i As Integer
-        For i = 1 To UBound(result)
-            result(i) = getCell(row, i - 1 + startColumn, sheetName, wbName, getFormula)
-        Next i
-
-        getRow = result
+        'If row is empty
+        If endColumn - startColumn + 1 = 0 Then
+            getRow = Array()
+        Else
+            'Get row
+            Dim result As Variant
+            ReDim result(1 To endColumn - startColumn + 1) As Variant
+    
+            Dim i As Integer
+            For i = 1 To UBound(result)
+                result(i) = getCell(row, i - 1 + startColumn, sheetName, wbName, getFormula)
+            Next i
+    
+            getRow = result
+        End If
     End Function
 
     'Get a row of formulas
@@ -426,16 +503,21 @@ End Function
             endRow = lastRow(column, sheetName, wbName)
         End If
 
-        'Get column
-        Dim result As Variant
-        ReDim result(1 To endRow - startRow + 1) As Variant
-
-        Dim i As Integer
-        For i = 1 To UBound(result)
-            result(i) = getCell(i - 1 + startRow, column, sheetName, wbName, getFormula)
-        Next i
-
-        getColumn = result
+        'If column is empty
+        If endRow - startRow + 1 = 0 Then
+            getColumn = Array()
+        Else
+            'Get column
+            Dim result As Variant
+            ReDim result(1 To endRow - startRow + 1) As Variant
+    
+            Dim i As Integer
+            For i = 1 To UBound(result)
+                result(i) = getCell(i - 1 + startRow, column, sheetName, wbName, getFormula)
+            Next i
+    
+            getColumn = result
+        End If
     End Function
 
 
